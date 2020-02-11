@@ -1,4 +1,7 @@
 # %load network.py
+#thatsdone
+import time
+import os
 
 """
 network.py
@@ -17,7 +20,15 @@ and omits many desirable features.
 import random
 
 # Third-party libraries
-import numpy as np
+#thatsdone
+#import numpy as np
+cuda = os.getenv("CUDA")
+if cuda == 'True':
+    print('network.py: Loading cupy as np')
+    import cupy as np
+else:
+    print('network.py: Loading numpy as np')
+    import numpy as np
 
 class Network(object):
 
@@ -32,6 +43,8 @@ class Network(object):
         layer is assumed to be an input layer, and by convention we
         won't set any biases for those neurons, since biases are only
         ever used in computing the outputs from later layers."""
+        #thatsdone
+        print('Network()::__init__: sizes = %d %d %d ' % (sizes[0], sizes[1], sizes[2]))
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
@@ -40,6 +53,8 @@ class Network(object):
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
+        #thatsdone
+        ##a=np.asarray(a)
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
@@ -54,25 +69,30 @@ class Network(object):
         network will be evaluated against the test data after each
         epoch, and partial progress printed out.  This is useful for
         tracking progress, but slows things down substantially."""
-
+        #thatsdone
+        print('batch_size=%s, epochs=%s, eta=%s' % (mini_batch_size, epochs, eta))
         training_data = list(training_data)
         n = len(training_data)
 
         if test_data:
             test_data = list(test_data)
             n_test = len(test_data)
-
+        #thatsdone
+        now=time.time()
         for j in range(epochs):
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
+                #print(type(mini_batch), type(mini_batch[0]), type(mini_batch[1]), len(mini_batch))
                 self.update_mini_batch(mini_batch, eta)
+            before=now
+            now=time.time() 
             if test_data:
-                print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test));
+                print("{} Epoch {} : {} / {}".format(now-before, j,self.evaluate(test_data),n_test));
             else:
-                print("Epoch {} complete".format(j))
+                print("{} Epoch {} complete".format(now-before, j))
 
     def update_mini_batch(self, mini_batch, eta):
         """Update the network's weights and biases by applying
